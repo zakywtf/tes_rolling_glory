@@ -1,82 +1,77 @@
-import m from "mongoose";
-class Models {
-    constructor(model){
-        this.model = model
+import db from '../config/db';
+
+class model 
+{
+    constructor(table)
+    {
+        this.db = db;
+        this.table = table;
+        this.tableConn=this.db(this.table)
         this.udata=false
+        this.minLevel = 0
+    }
+
+    getConn(tableName){
+        return this.db(tableName)
     }
 
     setUdata(udata){
-        this.udata=udata
+        this.udata=udata.payload;
     }
 
-    async getAll(){
-        return await this.model.find({})
-    }
-
-    async getByValue(body){
-        return await this.model.findOne(body,this.getProjection())
+    async getAll()
+    {
+        let x = this.db(this.table);
+        this.processSelectPaging(x);
+        return await x
     }
 
     async getById(id){
-        return await this.model.findById(id)
+        let x = this.db(this.table).where({'id':id });
+        this.processSelectPaging(x)
+        return await x
+    }
+    
+    async insert(data){
+        // this.cekLeveAccess()
+        return await this.doInsert(data)
+    }
+    
+    async doInsert(data)
+    {
+        let id = await this.db(this.table).returning('id').insert(data);
+        return id;
     }
 
-    doConvertParam(body){
-        return body
+    async update(where, update){
+        // this.cekLeveAccess()
+        return this.doUpdate(where, update)
     }
-    convertParam(body, updated=false){
-        if(!updated)body.createdBy = m.Types.ObjectId(this.udata.payload.id)
-        return this.doConvertParam(body)
-    }
-
-    convertParamDeleted(body, deleted=false){
-        if(!deleted)body.deletedBy=m.Types.ObjectId(this.udata.payload.id), body.deleted=1, body.deletedAt=Date.now()
-        return this.doConvertParam(body)
-    }
-    insert_result(resp){
-        return resp._id
+    
+    async doUpdate(where, update){
+        return await this.db(this.table).where(where).update(update);
     }
 
-    update_result(resp){
-        return resp
-    }
-
-    delete_result(resp){
-        return resp
-    }
-
-    processFilter(filter){
-        return filter
-    }
-
-    getProjection(){
-        return ''
-    }
-
-    async insert(obj){
-        console.log(this.udata.payload);
+    processSelectPaging(instance){
         
-        if(this.udata.payload.level<this.level)throw Error('Anda tidak punya akses untuk menambah data ini!')
-
-        let resp = await this.model.create(this.convertParam(obj))
-        return this.insert_result(resp)
     }
 
-    async update(id, obj){
-        let resp = await this.model.findByIdAndUpdate(id.id, this.convertParam(obj, true))
-        return this.update_result(resp)
+    cekLeveAccess(){
+        if(this.udata.type<this.minLevel) throw new Error('User has no privileges to add/edit this data');        
     }
 
-    async delete(id, obj){
-        let resp = await this.model.findByIdAndUpdate(id.id, this.convertParamDeleted(obj, true))
-        return this.delete_result(resp)
+    convParams(body){
+        return body;
     }
 
-    async paging(limit, offset, filter, sort){
-        const data = await this.model.find(this.processFilter(filter), this.getProjection(),{skip:parseInt(offset), limit:parseInt(limit), sort:sort});
-        const total = await this.model.count(filter);
-        return {data, total}
+    async paging(limit=0, offset=0, filter=false, order=false){
+        let x = this.db(this.table).limit(parseInt(limit)).offset(parseInt(offset))  
+        this.processSelectPaging(x)      
+        if(filter)x.where(filter)
+        if(order)x.orderBy(order)
+
+        return await x
     }
 }
 
-module.exports = Models
+module.exports = model;

@@ -1,9 +1,7 @@
 import jwt from 'jsonwebtoken'
 import moment from 'moment';
-import {getLastOnline} from '../lib/checkLastOnline';
 
 const SESSION = []
-
 
 const decode = async(token) => {
     return jwt.decode(token, {complete: true})
@@ -64,18 +62,6 @@ const checkSession = async(udata) => {
     }
 }
 
-const getSession=async(id)=>{
-    // console.log({id});
-    var data = SESSION[`${id}`]
-    if(data != undefined){
-        return (data.isOnline == true)?`Online`:await getLastOnline(data.lastOnline)
-    }else{
-        return `Offline`
-    }
-};
-
-
 module.exports = {
-    createSession,
-    getSession
+    createSession
 }
