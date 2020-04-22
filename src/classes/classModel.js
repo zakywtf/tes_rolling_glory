@@ -9,6 +9,7 @@ class model
         this.tableConn=this.db(this.table)
         this.udata=false
         this.minLevel = 0
+        // this.createTable
     }
 
     getConn(tableName){
@@ -17,6 +18,10 @@ class model
 
     setUdata(udata){
         this.udata=udata.payload;
+    }
+
+    async createSchemaTable(){
+        return true
     }
 
     async getAll()
@@ -34,6 +39,9 @@ class model
     
     async insert(data){
         // this.cekLeveAccess()
+        console.log({data});
+        
+        this.checkTableExist()
         return await this.doInsert(data)
     }
     
@@ -72,6 +80,7 @@ class model
 
         return await x
     }
+
 }
 
 module.exports = model;

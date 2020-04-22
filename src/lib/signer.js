@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import model from '../classes/classModel'
 import {createSession} from '../lib/sessionHandler';
+import db from '../config/db';
 
 class signer extends model {
     constructor(){
@@ -28,6 +29,9 @@ class signer extends model {
     }
 
     async signup(body){
+        // let user = await this.checkUser(body)
+        // console.log({user});
+        
         body.password = bcrypt.hashSync(body.password+body.username+process.env.SALT, 10)
         body.level = '2'
         await this.tableConn.insert(body)
@@ -48,7 +52,10 @@ class signer extends model {
     }
 
     async checkUser(body){
-        const user = await this.tableConn.where({username:body.username})
+        // var user = await this.tableConn.where({username:body.username})
+        var user = await db('users').where({username:body.username})
+        console.log({user});
+        
         return user[0]
     }
 

@@ -4,5 +4,9 @@ module.exports = require('knex')({
   client: 'mysql',
   version: '8.0',
   connection: connectionSetting,
-  pool:connectionPool
+  pool:connectionPool,
+  migrations: {
+    tableName: 'knex_migrations'
+  },
+  acquireConnectionTimeout: 3000
 })
