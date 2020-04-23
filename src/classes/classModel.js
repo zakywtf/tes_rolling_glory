@@ -7,8 +7,7 @@ class model
         this.db = db;
         this.table = table;
         this.tableConn=this.db(this.table)
-        this.udata=false
-        this.minLevel = 0
+        // this.udata=false
         // this.createTable
     }
 
@@ -61,8 +60,8 @@ class model
         
     }
 
-    cekLeveAccess(){
-        if(this.udata.type<this.minLevel) throw new Error('User has no privileges to add/edit this data');        
+    cekLevelAccess(){
+        if(this.udata.level == this.adminLevel) throw new Error('User has no privileges to add/edit this data');        
     }
 
     convParams(body){
