@@ -39,16 +39,13 @@ class model
     
     async insert(data){
         // this.cekLeveAccess()
-        console.log({data});
-        
-        this.checkTableExist()
         return await this.doInsert(data)
     }
     
     async doInsert(data)
     {
-        let id = await this.db(this.table).returning('id').insert(data);
-        return id;
+        let obj = await this.db(this.table).insert(data);
+        return obj;
     }
 
     async update(where, update){
