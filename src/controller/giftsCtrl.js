@@ -13,4 +13,12 @@ rtr.post('/:id/redeem',(req,res)=>{
     });
 })
 
+rtr.post('/:id/rating',(req,res)=>{
+    handleRequest(req, res, async (body)=>{
+        model.setUdata(res.locals && res.locals.udata)
+        const{id} =req.params
+        return await model.rating(body, id)
+    });
+})
+
 module.exports = rtr

@@ -1,14 +1,15 @@
 import cmd from '../classes/classModel';
 import redeemModel from './redeemsModel';
+import reviewModel from './reviewsModel';
 import moment from 'moment';
 
 const REDEEM = new redeemModel()
+const RATING = new reviewModel()
 
 class giftsModel extends cmd {
     constructor(){
         super('gifts')
         this.level = 1
-        this.udata
     }
 
     async insert(obj){
@@ -30,7 +31,7 @@ class giftsModel extends cmd {
         if(gData[0].stock > 0){
             var stck = gData[0].stock - obj.amount
             await this.reStock({id:id}, {stock:stck})
-            var rData = this.projection(id, obj.amount, this.udata)
+            var rData = this.redeemProjection(id, obj.amount, this.udata)
             await REDEEM.insert(rData)
 
             return true
@@ -43,7 +44,7 @@ class giftsModel extends cmd {
         return await this.tableConn.where(where).update(update);
     }
 
-    projection(giftId, amount, udata){        
+    redeemProjection(giftId, amount, udata){        
         var x = {
             'gift_id':giftId,
             'user_id':udata.id,
@@ -53,6 +54,32 @@ class giftsModel extends cmd {
 
         return x
     }
+
+    async rating(obj, id){
+        var cRating = await RATING.checkRating(id, this.udata.id)
+        var rtData = this.ratingProjection(obj, id, this.udata)
+        console.log({cRating});
+        if(cRating.length == 0){
+            await RATING.insert(rtData)
+            return true
+        }else{
+            await RATING.updateRating(id, this.udata.id, obj)
+            return true
+        }
+    }
+
+    ratingProjection(obj, id, udata){
+        var x = {
+            'user_id':udata.id,
+            'gift_id':id,
+            'rating':obj.rating,
+            'review':obj.review,
+            'created_at':moment().format('YYYY-MM-DD')
+        }
+
+        return x
+    }
+
 
 }
 
