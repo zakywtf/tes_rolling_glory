@@ -5,6 +5,10 @@ class giftsModel extends cmd {
         super('gifts')
     }
 
+    async insert(obj){
+        var udata = this.udata.payload
+    }
+
 }
 
 module.exports=giftsModel

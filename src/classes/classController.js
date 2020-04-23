@@ -17,7 +17,7 @@ function controller(model) {
         })
     })
     
-    router.post('/create',async(req, res)=>{
+    router.post('/',async(req, res)=>{
         handleRequest(req, res, async (body)=>{
             model.setUdata(res.locals && res.locals.udata)
             await model.insert(body)
