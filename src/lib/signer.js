@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import model from '../classes/classModel'
 import {createSession} from '../lib/sessionHandler';
 import db from '../config/db';
+import moment from 'moment';
 
 class signer extends model {
     constructor(){
@@ -34,6 +35,8 @@ class signer extends model {
         
         body.password = bcrypt.hashSync(body.password+body.username+process.env.SALT, 10)
         body.level = '2'
+        body.created_at = moment().format('YYYY-MM-DD')
+
         await this.tableConn.insert(body)
         return true
     }
