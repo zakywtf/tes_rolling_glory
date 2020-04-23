@@ -6,7 +6,7 @@ function controller(model) {
     router.get('/', async(req,res)=>{
         handleRequest(req, res, async (body)=>{
             model.setUdata(res.locals && res.locals.udata)
-            return await model.getAll()
+            return await model.getAll(body)
         })
     })
     

@@ -23,10 +23,10 @@ class model
         return true
     }
 
-    async getAll()
+    async getAll(obj)
     {
-        let x = this.db(this.table);
-        this.processSelectPaging(x);
+        const {limit, offset, filter, sort}= obj
+        let x = this.paging(limit, offset, filter, sort);
         return await x
     }
 
@@ -70,7 +70,7 @@ class model
 
     async paging(limit=0, offset=0, filter=false, order=false){
         let x = this.db(this.table).limit(parseInt(limit)).offset(parseInt(offset))  
-        this.processSelectPaging(x)      
+        // this.processSelectPaging(x)      
         if(filter)x.where(filter)
         if(order)x.orderBy(order)
 

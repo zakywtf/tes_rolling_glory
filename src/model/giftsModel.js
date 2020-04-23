@@ -12,6 +12,47 @@ class giftsModel extends cmd {
         this.level = 1
     }
 
+    async getAll(obj){
+        const {limit, offset, filter, sort}= obj
+        let x = await this.paging(limit, offset, filter, sort);
+        var result =[]
+        for (let i = 0; i < x.length; i++) {
+            var e = x[i];
+            // console.log({e});
+            
+            var rtg = await RATING.getRating(e.id)
+            var d = {
+                'id':e.id,
+                'name':e.name,
+                'poins':e.poins,
+                rtg
+            }
+            result.push(d)
+        }
+        // console.log({result});
+
+        return result
+    }
+
+    async getById(id){
+        let x = await this.tableConn.where({id:id});
+        var rtg = await RATING.getRating(x[0].id)
+        console.log({rtg});
+        var d = {
+            ...x[0], rtg
+        }
+        return d
+    }
+
+    async paging(limit=0, offset=0, filter=false, order=false){
+        let x = this.tableConn.limit(parseInt(limit)).offset(parseInt(offset))  
+        // this.processSelectPaging(x)      
+        if(filter)x.where(filter)
+        if(order)x.orderBy(order)
+
+        return await x
+    }
+
     async insert(obj){
         if(this.udata.level == this.level){
             obj.created_by = this.udata.id
@@ -28,8 +69,8 @@ class giftsModel extends cmd {
     async redeem(obj, id){
         var gData = await this.getById(id)
         console.log({gData});
-        if(gData[0].stock > 0){
-            var stck = gData[0].stock - obj.amount
+        if(gData.stock > 0){
+            var stck = gData.stock - obj.amount
             await this.reStock({id:id}, {stock:stck})
             var rData = this.redeemProjection(id, obj.amount, this.udata)
             await REDEEM.insert(rData)
